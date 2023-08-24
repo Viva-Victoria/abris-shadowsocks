@@ -26,8 +26,9 @@ jobs:
 
     - name: Get dependencies
       run: |
-        # Download GeoIP test data from MaxMind
-        git submodule update --init
+        git clone https://github.com/maxmind/MaxMind-DB.git mmdb && \
+        mv mmdb/test-data ./test-data && \
+        rm -rf mmdb
 
     - name: Build
       run: go build -v ./...

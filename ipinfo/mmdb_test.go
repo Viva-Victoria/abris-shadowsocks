@@ -25,7 +25,7 @@ import (
 )
 
 func TestTestDataExists(t *testing.T) {
-	_, err := os.Stat("../third_party/maxmind/test-data")
+	_, err := os.Stat("../test-data")
 	// The test data is in a git submodule that must be initialized before running the test.
 	require.NotErrorIs(t, err, fs.ErrNotExist, "Test MMDB directory not found. Make sure you ran `git submodule update --init --depth=1`")
 }
@@ -48,7 +48,7 @@ func TestIPInfoMapEmpty(t *testing.T) {
 }
 
 func TestIPInfoMapCountryOnly(t *testing.T) {
-	ip2info, err := NewMMDBIPInfoMap("../third_party/maxmind/test-data/GeoLite2-Country-Test.mmdb", "")
+	ip2info, err := NewMMDBIPInfoMap("../test-data/GeoLite2-Country-Test.mmdb", "")
 	require.NoError(t, err)
 	defer ip2info.Close()
 
@@ -71,7 +71,7 @@ func TestIPInfoMapCountryOnly(t *testing.T) {
 }
 
 func TestIPInfoMapASNOnly(t *testing.T) {
-	ip2info, err := NewMMDBIPInfoMap("", "../third_party/maxmind/test-data/GeoLite2-ASN-Test.mmdb")
+	ip2info, err := NewMMDBIPInfoMap("", "../test-data/GeoLite2-ASN-Test.mmdb")
 	require.NoError(t, err)
 	defer ip2info.Close()
 
@@ -98,7 +98,7 @@ func TestIPInfoMapASNOnly(t *testing.T) {
 }
 
 func TestIPInfoMap(t *testing.T) {
-	ip2info, err := NewMMDBIPInfoMap("../third_party/maxmind/test-data/GeoLite2-Country-Test.mmdb", "../third_party/maxmind/test-data/GeoLite2-ASN-Test.mmdb")
+	ip2info, err := NewMMDBIPInfoMap("../test-data/GeoLite2-Country-Test.mmdb", "../test-data/GeoLite2-ASN-Test.mmdb")
 	require.NoError(t, err)
 	defer ip2info.Close()
 
@@ -124,7 +124,7 @@ func TestIPInfoMap(t *testing.T) {
 }
 
 func BenchmarkNewMMDBIPInfoMap(b *testing.B) {
-	ip2info, err := NewMMDBIPInfoMap("../third_party/maxmind/test-data/GeoLite2-Country-Test.mmdb", "../third_party/maxmind/test-data/GeoLite2-ASN-Test.mmdb")
+	ip2info, err := NewMMDBIPInfoMap("../test-data/GeoLite2-Country-Test.mmdb", "../test-data/GeoLite2-ASN-Test.mmdb")
 	require.NoError(b, err)
 	defer ip2info.Close()
 

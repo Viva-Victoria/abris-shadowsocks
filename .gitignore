@@ -13,14 +13,11 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 
-# goreleaser temporary files.
-/dist/
-
 # Tools
 /bin/
 
-# Git submodules
-/third_party/maxmind/
-
 # Prometheus
 /data/
+
+# IDE
+.idea/
