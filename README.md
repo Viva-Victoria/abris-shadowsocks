@@ -1,12 +1,9 @@
 # Abris Shadowsocks server
 
-[![Build Status](https://github.com/Jigsaw-Code/outline-ss-server/actions/workflows/go.yml/badge.svg)](https://github.com/Jigsaw-Code/outline-ss-server/actions/workflows/go.yml?query=branch%3Amaster)
+[![Build Status](https://github.com/Viva-Victoria/abris-shadowsocks/actions/workflows/go.yml/badge.svg)](https://github.com/Viva-Victoria/abris-shadowsocks/actions/workflows/go.yml?query=branch%3Amaster)
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/Jigsaw-Code/outline-ss-server)](https://goreportcard.com/report/github.com/Jigsaw-Code/outline-ss-server)
-[![Go Reference](https://pkg.go.dev/badge/github.com/Jigsaw-Code/outline-ss-server.svg)](https://pkg.go.dev/github.com/Jigsaw-Code/outline-ss-server)
-
-[![Mattermost](https://badgen.net/badge/Mattermost/Outline%20Community/blue)](https://community.internetfreedomfestival.org/community/channels/outline-community)
-[![Reddit](https://badgen.net/badge/Reddit/r%2Foutlinevpn/orange)](https://www.reddit.com/r/outlinevpn/)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Viva-Victoria/abris-shadowsocks)](https://goreportcard.com/report/github.com/Viva-Victoria/abris-shadowsocks)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Viva-Victoria/abris-shadowsocks.svg)](https://pkg.go.dev/github.com/Viva-Victoria/abris-shadowsocks)
 
 ## About
 This repository forked from [outline-ss-server](https://github.com/Jigsaw-Code/outline-ss-server), Shadowsocks backend used by the [Outline Server](https://github.com/Jigsaw-Code/outline-server).
