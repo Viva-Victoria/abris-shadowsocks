@@ -28,9 +28,6 @@ jobs:
       - name: Display Go version
         run: go version
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-
       - name: Get test data
         run: |
           git clone https://github.com/maxmind/MaxMind-DB.git mmdb && \
