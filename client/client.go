@@ -22,7 +22,7 @@ import (
 
 	"github.com/Jigsaw-Code/outline-sdk/transport"
 	"github.com/Jigsaw-Code/outline-sdk/transport/shadowsocks"
-	onet "github.com/Jigsaw-Code/outline-ss-server/net"
+	onet "github.com/Viva-Victoria/abris-shadowsocks/net"
 )
 
 // Client is a client for Shadowsocks TCP and UDP connections.

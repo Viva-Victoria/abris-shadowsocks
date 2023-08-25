@@ -19,9 +19,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Jigsaw-Code/outline-ss-server/ipinfo"
-	"github.com/Jigsaw-Code/outline-ss-server/service"
-	"github.com/Jigsaw-Code/outline-ss-server/service/metrics"
+	"github.com/Viva-Victoria/abris-shadowsocks/ipinfo"
+	"github.com/Viva-Victoria/abris-shadowsocks/service"
+	"github.com/Viva-Victoria/abris-shadowsocks/service/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
