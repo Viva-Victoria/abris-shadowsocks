@@ -1,4 +1,4 @@
-keys: keys.yml
+keys: config/keys.yml
 listen:
   metrics: 0.0.0.0:9140
 timeout:

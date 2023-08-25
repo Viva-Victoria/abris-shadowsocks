@@ -7,7 +7,7 @@ import (
 )
 
 func Load() (Config, error) {
-	file, err := os.Open("config.yml")
+	file, err := os.Open("config/config.yml")
 	if err != nil {
 		return Config{}, fmt.Errorf("can't open file: %w", err)
 	}
