@@ -16,8 +16,8 @@ package main
 
 import (
 	"container/list"
-	"flag"
 	"fmt"
+	"github.com/Viva-Victoria/abris-shadowsocks/config"
 	"github.com/op/go-logging"
 	"net"
 	"net/http"
@@ -54,6 +54,7 @@ func init() {
 		// Add color only if the output is the terminal
 		prefix = strings.Join([]string{"%{color}", prefix, "%{color:reset}"}, "")
 	}
+
 	logging.SetFormatter(logging.MustStringFormatter(strings.Join([]string{prefix, " %{message}"}, "")))
 	logging.SetBackend(logging.NewLogBackend(os.Stderr, "", 0))
 	logger = logging.MustGetLogger("")
@@ -78,27 +79,38 @@ func (s *SSServer) startPort(portNum int) error {
 		//lint:ignore ST1005 Shadowsocks is capitalized.
 		return fmt.Errorf("Shadowsocks TCP service failed to start on port %v: %w", portNum, err)
 	}
+
 	logger.Infof("Shadowsocks TCP service listening on %v", listener.Addr().String())
 	packetConn, err := net.ListenUDP("udp", &net.UDPAddr{Port: portNum})
 	if err != nil {
 		//lint:ignore ST1005 Shadowsocks is capitalized.
 		return fmt.Errorf("Shadowsocks UDP service failed to start on port %v: %w", portNum, err)
 	}
+
 	logger.Infof("Shadowsocks UDP service listening on %v", packetConn.LocalAddr().String())
-	port := &ssPort{tcpListener: listener, packetConn: packetConn, cipherList: service.NewCipherList()}
+	port := &ssPort{
+		tcpListener: listener,
+		packetConn:  packetConn,
+		cipherList:  service.NewCipherList(),
+	}
+
 	// TODO: Register initial data metrics at zero.
 	tcpHandler := service.NewTCPHandler(portNum, port.cipherList, &s.replayCache, s.m, tcpReadTimeout)
 	packetHandler := service.NewPacketHandler(s.natTimeout, port.cipherList, s.m)
 	s.ports[portNum] = port
+
 	accept := func() (transport.StreamConn, error) {
 		conn, err := listener.AcceptTCP()
 		if err == nil {
-			conn.SetKeepAlive(true)
+			_ = conn.SetKeepAlive(true)
 		}
+
 		return conn, err
 	}
+
 	go service.StreamServe(accept, tcpHandler.Handle)
 	go packetHandler.Handle(port.packetConn)
+
 	return nil
 }
 
@@ -107,63 +119,82 @@ func (s *SSServer) removePort(portNum int) error {
 	if !ok {
 		return fmt.Errorf("port %v doesn't exist", portNum)
 	}
+
 	tcpErr := port.tcpListener.Close()
 	udpErr := port.packetConn.Close()
+
 	delete(s.ports, portNum)
+
 	if tcpErr != nil {
 		//lint:ignore ST1005 Shadowsocks is capitalized.
 		return fmt.Errorf("Shadowsocks TCP service on port %v failed to stop: %w", portNum, tcpErr)
 	}
+
 	logger.Infof("Shadowsocks TCP service on port %v stopped", portNum)
 	if udpErr != nil {
 		//lint:ignore ST1005 Shadowsocks is capitalized.
 		return fmt.Errorf("Shadowsocks UDP service on port %v failed to stop: %w", portNum, udpErr)
 	}
+
 	logger.Infof("Shadowsocks UDP service on port %v stopped", portNum)
 	return nil
 }
 
-func (s *SSServer) loadConfig(filename string) error {
-	config, err := readConfig(filename)
+func (s *SSServer) loadKeyFile(filename string) error {
+	keyFile, err := readKeyFile(filename)
 	if err != nil {
 		return fmt.Errorf("failed to load config (%v): %w", filename, err)
 	}
 
 	portChanges := make(map[int]int)
 	portCiphers := make(map[int]*list.List) // Values are *List of *CipherEntry.
-	for _, keyConfig := range config.Keys {
+
+	for _, keyConfig := range keyFile.Keys {
 		portChanges[keyConfig.Port] = 1
 		cipherList, ok := portCiphers[keyConfig.Port]
 		if !ok {
 			cipherList = list.New()
 			portCiphers[keyConfig.Port] = cipherList
 		}
+
 		cryptoKey, err := shadowsocks.NewEncryptionKey(keyConfig.Cipher, keyConfig.Secret)
 		if err != nil {
 			return fmt.Errorf("failed to create encyption key for key %v: %w", keyConfig.ID, err)
 		}
+
 		entry := service.MakeCipherEntry(keyConfig.ID, cryptoKey, keyConfig.Secret)
 		cipherList.PushBack(&entry)
 	}
+
 	for port := range s.ports {
 		portChanges[port] = portChanges[port] - 1
 	}
+
 	for portNum, count := range portChanges {
 		if count == -1 {
 			if err := s.removePort(portNum); err != nil {
 				return fmt.Errorf("failed to remove port %v: %w", portNum, err)
 			}
-		} else if count == +1 {
+
+			continue
+		}
+
+		if count == +1 {
 			if err := s.startPort(portNum); err != nil {
 				return err
 			}
+
+			continue
 		}
 	}
+
 	for portNum, cipherList := range portCiphers {
 		s.ports[portNum].cipherList.Update(cipherList)
 	}
-	logger.Infof("Loaded %v access keys over %v ports", len(config.Keys), len(s.ports))
-	s.m.SetNumAccessKeys(len(config.Keys), len(portCiphers))
+
+	logger.Infof("Loaded %v access keys over %v ports", len(keyFile.Keys), len(s.ports))
+	s.m.SetNumAccessKeys(len(keyFile.Keys), len(portCiphers))
+
 	return nil
 }
 
@@ -174,6 +205,7 @@ func (s *SSServer) Stop() error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -185,24 +217,27 @@ func RunSSServer(filename string, natTimeout time.Duration, sm *outlineMetrics, 
 		replayCache: service.NewReplayCache(replayHistory),
 		ports:       make(map[int]*ssPort),
 	}
-	err := server.loadConfig(filename)
+
+	err := server.loadKeyFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed configure server: %w", err)
 	}
+
 	sigHup := make(chan os.Signal, 1)
 	signal.Notify(sigHup, syscall.SIGHUP)
 	go func() {
 		for range sigHup {
 			logger.Infof("SIGHUP received. Loading config from %v", filename)
-			if err := server.loadConfig(filename); err != nil {
+			if err := server.loadKeyFile(filename); err != nil {
 				logger.Errorf("Failed to update server: %v. Server state may be invalid. Fix the error and try the update again", err)
 			}
 		}
 	}()
+
 	return server, nil
 }
 
-type Config struct {
+type KeyFile struct {
 	Keys []struct {
 		ID     string
 		Port   int
@@ -211,81 +246,40 @@ type Config struct {
 	}
 }
 
-func readConfig(filename string) (*Config, error) {
-	config := Config{}
+func readKeyFile(filename string) (*KeyFile, error) {
+	var keyFile KeyFile
 	configData, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)
 	}
-	err = yaml.Unmarshal(configData, &config)
+
+	err = yaml.Unmarshal(configData, &keyFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
-	return &config, nil
+
+	return &keyFile, nil
 }
 
 func main() {
-	var flags struct {
-		ConfigFile    string
-		MetricsAddr   string
-		IPCountryDB   string
-		IPASNDB       string
-		natTimeout    time.Duration
-		replayHistory int
-		Verbose       bool
-		Version       bool
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
 	}
-	flag.StringVar(&flags.ConfigFile, "config", "", "Configuration filename")
-	flag.StringVar(&flags.MetricsAddr, "metrics", "", "Address for the Prometheus metrics")
-	flag.StringVar(&flags.IPCountryDB, "ip_country_db", "", "Path to the ip-to-country mmdb file")
-	flag.StringVar(&flags.IPASNDB, "ip_asn_db", "", "Path to the ip-to-ASN mmdb file")
-	flag.DurationVar(&flags.natTimeout, "udptimeout", defaultNatTimeout, "UDP tunnel timeout")
-	flag.IntVar(&flags.replayHistory, "replay_history", 0, "Replay buffer size (# of handshakes)")
-	flag.BoolVar(&flags.Verbose, "verbose", false, "Enables verbose logging output")
-	flag.BoolVar(&flags.Version, "version", false, "The version of the server")
 
-	flag.Parse()
-
-	if flags.Verbose {
+	if cfg.Verbose {
 		logging.SetLevel(logging.DEBUG, "")
 	} else {
 		logging.SetLevel(logging.INFO, "")
 	}
 
-	if flags.Version {
-		fmt.Println(version)
-		return
-	}
-
-	if flags.ConfigFile == "" {
-		flag.Usage()
-		return
-	}
-
-	if flags.MetricsAddr != "" {
+	if metrics := cfg.Listen.Metrics; len(metrics) > 0 {
 		http.Handle("/metrics", promhttp.Handler())
-		go func() {
-			logger.Fatalf("Failed to run metrics server: %v. Aborting.", http.ListenAndServe(flags.MetricsAddr, nil))
-		}()
-		logger.Infof("Prometheus metrics available at http://%v/metrics", flags.MetricsAddr)
+		go logger.Fatalf("Failed to run metrics server: %v. Aborting.", http.ListenAndServe(metrics, nil))
+		logger.Infof("Prometheus metrics available at http://%v/metrics", metrics)
 	}
 
-	var err error
-	if flags.IPCountryDB != "" {
-		logger.Infof("Using IP-Country database at %v", flags.IPCountryDB)
-	}
-	if flags.IPASNDB != "" {
-		logger.Infof("Using IP-ASN database at %v", flags.IPASNDB)
-	}
-	ip2info, err := ipinfo.NewMMDBIPInfoMap(flags.IPCountryDB, flags.IPASNDB)
-	if err != nil {
-		logger.Fatalf("Could create IP info map: %v. Aborting", err)
-	}
-	defer ip2info.Close()
-
-	m := newPrometheusOutlineMetrics(ip2info, prometheus.DefaultRegisterer)
-	m.SetBuildInfo(version)
-	_, err = RunSSServer(flags.ConfigFile, flags.natTimeout, m, flags.replayHistory)
+	_, err = RunSSServer(cfg.Keys.Path, cfg.Timeout.NAT.Duration, initMetrics(cfg), cfg.ReplayHistory)
 	if err != nil {
 		logger.Fatalf("Server failed to start: %v. Aborting", err)
 	}
@@ -293,4 +287,27 @@ func main() {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	<-sigCh
+}
+
+func initMetrics(cfg config.Config) *outlineMetrics {
+	ip2c := cfg.GeoIP.Countries
+	if len(ip2c) > 0 {
+		logger.Infof("Using IP-Country database at %v", ip2c)
+	}
+
+	ip2n := cfg.GeoIP.ASN
+	if len(ip2n) > 0 {
+		logger.Infof("Using IP-ASN database at %v", ip2n)
+	}
+
+	ip2info, err := ipinfo.NewMMDBIPInfoMap(ip2c, ip2n)
+	if err != nil {
+		logger.Fatalf("Could create IP info map: %v. Aborting", err)
+	}
+	defer ip2info.Close()
+
+	m := newPrometheusOutlineMetrics(ip2info, prometheus.DefaultRegisterer)
+	m.SetBuildInfo(version)
+
+	return m
 }
