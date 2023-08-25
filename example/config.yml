@@ -1,0 +1,11 @@
+keys: keys.yml
+listen:
+  metrics: 0.0.0.0:9140
+timeout:
+  nat: 5m
+  tcpRead: 59s
+geoIP:
+  countries: ip2c.mmdb
+  asn: ip2n.mmdb
+verbose: true
+replayHistory: 10000 # number of handshakes

@@ -21,7 +21,7 @@ type Listen struct {
 
 type GeoIP struct {
 	Countries string `yaml:"countries"`
-	ASN       string `yaml:"ASN"`
+	ASN       string `yaml:"asn"`
 }
 
 type Timeout struct {
