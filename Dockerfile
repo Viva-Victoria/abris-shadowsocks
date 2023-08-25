@@ -6,7 +6,7 @@ FROM ${BUILD_IMAGE} as build
 WORKDIR /app
 
 COPY ./ ./
-RUN go build -o ./out/outline-ss-server ./cmd/outline-ss-server
+RUN go build -o ./out/shadowsocks ./cmd/
 
 FROM ${RUN_IMAGE}
 
@@ -16,6 +16,6 @@ WORKDIR /app
 
 COPY --from=build /app/out ./
 RUN apk add libc6-compat && \
-    chmod +x ./outline-ss-server
+    chmod +x ./shadowsocks
 
-ENTRYPOINT /app/outline-ss-server
+ENTRYPOINT /app/shadowsocks
