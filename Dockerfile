@@ -1,11 +1,14 @@
-FROM registry.voopsen/base/golang as build
+ARG BUILD_IMAGE=golang:alpine
+ARG RUN_IMAGE=alpine
+
+FROM ${BUILD_IMAGE} as build
 
 WORKDIR /app
 
 COPY ./ ./
 RUN go build -o ./out/outline-ss-server ./cmd/outline-ss-server
 
-FROM registry.voopsen/base/alpine
+FROM ${RUN_IMAGE}
 
 EXPOSE 80
 
