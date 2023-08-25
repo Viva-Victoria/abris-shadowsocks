@@ -10,8 +10,6 @@ RUN go build -o ./out/shadowsocks ./cmd/
 
 FROM ${RUN_IMAGE}
 
-EXPOSE 80
-
 WORKDIR /app
 
 COPY --from=build /app/out ./
