@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"io"
 
-	ss "github.com/Viva-Victoria/abris-shadowsocks/shadowsocks"
+	ss "github.com/Viva-Victoria/diamond-socks/shadowsocks"
 	"golang.org/x/crypto/hkdf"
 )
 

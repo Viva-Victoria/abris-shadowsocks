@@ -1,4 +1,4 @@
-module github.com/Viva-Victoria/abris-shadowsocks
+module github.com/Viva-Victoria/diamond-socks
 
 require (
 	github.com/Jigsaw-Code/outline-sdk v0.0.2

@@ -1,9 +1,9 @@
-# Abris Shadowsocks server
+# Diamond Shadowsocks server
 
-[![Build Status](https://github.com/Viva-Victoria/abris-shadowsocks/actions/workflows/go.yml/badge.svg)](https://github.com/Viva-Victoria/abris-shadowsocks/actions/workflows/go.yml?query=branch%3Amaster)
-[![codecov](https://codecov.io/gh/Viva-Victoria/abris-shadowsocks/graph/badge.svg?token=OOFIQCROEJ)](https://codecov.io/gh/Viva-Victoria/abris-shadowsocks)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Viva-Victoria/abris-shadowsocks)](https://goreportcard.com/report/github.com/Viva-Victoria/abris-shadowsocks)
-[![Go Reference](https://pkg.go.dev/badge/github.com/Viva-Victoria/abris-shadowsocks.svg)](https://pkg.go.dev/github.com/Viva-Victoria/abris-shadowsocks)
+[![Build Status](https://github.com/Viva-Victoria/diamond-shadowsocks/actions/workflows/go.yml/badge.svg)](https://github.com/Viva-Victoria/diamond-shadowsocks/actions/workflows/go.yml?query=branch%3Amaster)
+[![codecov](https://codecov.io/gh/Viva-Victoria/diamond-shadowsocks/graph/badge.svg?token=OOFIQCROEJ)](https://codecov.io/gh/Viva-Victoria/diamond-shadowsocks)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Viva-Victoria/diamond-shadowsocks)](https://goreportcard.com/report/github.com/Viva-Victoria/diamond-shadowsocks)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Viva-Victoria/diamond-shadowsocks.svg)](https://pkg.go.dev/github.com/Viva-Victoria/diamond-shadowsocks)
 
 ## About
 This repository forked from [outline-ss-server](https://github.com/Jigsaw-Code/outline-ss-server), Shadowsocks backend used by the [Outline Server](https://github.com/Jigsaw-Code/outline-server).

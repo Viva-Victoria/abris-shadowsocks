@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Viva-Victoria/abris-shadowsocks/ipinfo"
-	"github.com/Viva-Victoria/abris-shadowsocks/service/metrics"
+	"github.com/Viva-Victoria/diamond-socks/ipinfo"
+	"github.com/Viva-Victoria/diamond-socks/service/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/require"
 )

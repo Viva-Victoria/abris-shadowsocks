@@ -19,7 +19,7 @@ import (
 	"net"
 	"testing"
 
-	sstest "github.com/Viva-Victoria/abris-shadowsocks/shadowsocks"
+	sstest "github.com/Viva-Victoria/diamond-socks/shadowsocks"
 )
 
 func BenchmarkLocking(b *testing.B) {

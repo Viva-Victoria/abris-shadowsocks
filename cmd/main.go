@@ -17,7 +17,7 @@ package main
 import (
 	"container/list"
 	"fmt"
-	"github.com/Viva-Victoria/abris-shadowsocks/config"
+	"github.com/Viva-Victoria/diamond-socks/config"
 	"github.com/op/go-logging"
 	"net"
 	"net/http"
@@ -29,8 +29,8 @@ import (
 
 	"github.com/Jigsaw-Code/outline-sdk/transport"
 	"github.com/Jigsaw-Code/outline-sdk/transport/shadowsocks"
-	"github.com/Viva-Victoria/abris-shadowsocks/ipinfo"
-	"github.com/Viva-Victoria/abris-shadowsocks/service"
+	"github.com/Viva-Victoria/diamond-socks/ipinfo"
+	"github.com/Viva-Victoria/diamond-socks/service"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/term"

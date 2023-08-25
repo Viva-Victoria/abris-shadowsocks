@@ -22,7 +22,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/Viva-Victoria/abris-shadowsocks/internal/slicepool"
+	"github.com/Viva-Victoria/diamond-socks/internal/slicepool"
 )
 
 // payloadSizeMask is the maximum size of payload in bytes.
