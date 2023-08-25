@@ -1,0 +1,44 @@
+name: On Push
+on:
+  - push
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.18', '1.19', '1.20' ]
+
+    steps:
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Display Go version
+        run: go version
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+
+      - name: Get test data
+        run: |
+          git clone https://github.com/maxmind/MaxMind-DB.git mmdb && \
+          mv mmdb/test-data ./test-data && \
+          rm -rf mmdb
+
+      - name: Test
+        run: go test -race -benchmem -bench=. -coverprofile=coverage.txt -covermode=atomic ./... -benchtime=100ms
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
