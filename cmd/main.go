@@ -50,13 +50,13 @@ const defaultNatTimeout time.Duration = 5 * time.Minute
 
 func init() {
 	var prefix = "%{level:.1s}%{time:2006-01-02T15:04:05.000Z07:00} %{pid} %{shortfile}]"
-	if term.IsTerminal(int(os.Stderr.Fd())) {
+	if term.IsTerminal(int(os.Stdout.Fd())) {
 		// Add color only if the output is the terminal
 		prefix = strings.Join([]string{"%{color}", prefix, "%{color:reset}"}, "")
 	}
 
 	logging.SetFormatter(logging.MustStringFormatter(strings.Join([]string{prefix, " %{message}"}, "")))
-	logging.SetBackend(logging.NewLogBackend(os.Stderr, "", 0))
+	logging.SetBackend(logging.NewLogBackend(os.Stdout, "", 0))
 	logger = logging.MustGetLogger("")
 }
 
