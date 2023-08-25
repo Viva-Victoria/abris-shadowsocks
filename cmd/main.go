@@ -275,7 +275,9 @@ func main() {
 
 	if metrics := cfg.Listen.Metrics; len(metrics) > 0 {
 		http.Handle("/metrics", promhttp.Handler())
-		go logger.Fatalf("Failed to run metrics server: %v. Aborting.", http.ListenAndServe(metrics, nil))
+		go func() {
+			logger.Fatalf("Failed to run metrics server: %v. Aborting.", http.ListenAndServe(metrics, nil))
+		}()
 		logger.Infof("Prometheus metrics available at http://%v/metrics", metrics)
 	}
 
